@@ -13,10 +13,24 @@
 
 #ifndef  fst_common_H
 #define  fst_common_H
+#include <stdio.h>
+#include <cstring>
+#include <string>
 
-typedef unsigned int fst_state_id
-typedef unsigned int fst_label_id
-typedef unsigned int fst_transition_id
-typedef float        real
+typedef unsigned int fst_state_id;
+typedef unsigned int fst_label_id;
+typedef unsigned int fst_transition_id;
+typedef float        real;
+typedef std::string  string;
+
+#define LOG_ZERO     -1.0e10
+#define MAX_LINE     255
+
+#ifndef DEBUG
+#define DEBUG 1
+#endif
+
+#undef spark_debug
+#define spark_debug(...) printf("%s:%s:%d:", __FILE__, __FUNCTION__, __LINE__); printf(__VA_ARGS__);
 
 #endif   /* ----- #ifndef fst_common_H  ----- */
