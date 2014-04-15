@@ -16,6 +16,10 @@
 
 #include "utils/fst_common.h"
 
+#define SENT_START "<s>"
+#define SENT_END   "</s>"
+#define EPS_MARKER "<eps>"
+
 typedef struct {
 	unsigned int   n_labels;
 	char         **labels;
@@ -24,6 +28,9 @@ typedef struct {
 	fst_label_id   eps_marker;
 }fst_alphabet_t, fst_in_alphabet_t, fst_out_alphabet_t;
 
+fst_alphabet_t * fst_alphabet_new();
+int fst_alphabet_load (fst_alphabet_t *ab, const char * symfn);
+int fst_alphabet_reset(fst_alphabet_t *ab);
 #endif   /* ----- #ifndef fst_alphabet_H  ----- */
 
 
