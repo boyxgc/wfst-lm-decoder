@@ -22,7 +22,7 @@ python arpa2fst.py test.arpa test.fsm test  #this will create 4 files: test.fsm,
 #install Graphviz if you don't have
 
 #compile fst and draw
-fstcompile --arc_type=log --acceptor=true   --isymbols=test.g.isyms --osymbols=test.g.osyms --ssymbols=test.g.ssyms test.fsm test.bfsm #--keep_state_numbering
-fstdraw --acceptor=true --isymbols=test.g.isyms --osymbols=test.g.osyms --ssymbols=test.g.ssyms --portrait=true test.bfsm| dot -Tpdf > test.pdf
+fstcompile --arc_type=log --acceptor=true   --isymbols=test.g.isyms --ssymbols=test.g.ssyms --keep_state_numbering test.fsm | \
+fstdraw --acceptor=true --isymbols=test.g.isyms --ssymbols=test.g.ssyms --portrait=true test.bfsm| dot -Tpdf > test.pdf
 
 #now you can open test.pdf to view the fst
