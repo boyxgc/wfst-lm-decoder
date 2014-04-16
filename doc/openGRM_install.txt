@@ -1,0 +1,14 @@
+#download opengrm
+
+#install on mac OS X 10.9
+
+#before instal openGRM you should have openfst installed
+
+./configure --prefix=/usr/local/Cellar/opengrm-ngram-1.1.0/  CXX="clang++ -std=c++11 -stdlib=libstdc++ -I /usr/local/Cellar/openfst-1.3.4/include -L/usr/local/Cellar/openfst-1.3.4/lib/ -L/usr/local/Cellar/openfst-1.3.4/lib/fst"
+# replace path following -L by your own openfst library path
+
+make clean
+
+make
+
+make install #you need sudo if you install in a system folder
