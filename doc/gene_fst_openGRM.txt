@@ -1,0 +1,47 @@
+current directory:
+
+.                  #current working directory
+ |-gengrm.sh       #script
+ |-test            #test directory
+      |- test.txt  #corpus text
+
+
+file: 
+     gengrm.sh
+
+ngramsymbols --epsilon_symbol="<eps>" --start_symbol="<s>" --end_symbol="<s>" < $2/$1.txt > $2/$1.syms
+farcompilestrings --symbols=$2/$1.syms --keep_symbols=1 $2/$1.txt | \
+ngramcount -order=2 | \
+ngrammake -method="katz" > $2/$1.mod 
+
+fstdraw $2/$1.mod | dot -Tpdf > $2/$1.pdf
+
+#to see text file of fst
+fstprint < $2/$1.mod  >$2/$1.mod.txt
+
+#to get arpa from mod
+ngramprint -ARPA $2/$1.mod > $2/$1.arpa
+
+file:
+     test.txt
+
+<s> foo bar </s>
+<s> bar foo </s>
+
+
+RUN:
+
+sh gengrm.sh test ./test/  #first argument: prefix , second argument: working dir
+
+directory after RUN:
+
+.                        #current working directory
+ |- gengrm.sh            #script
+ |-test                  #test directory
+       |- test.txt       #corpus text
+       |- test.syms      #symbol file
+       |- test.mod       #model file, binary fst format
+       |- test.mod.txt   #model file, text fst format
+       |- test.arpa      #model file, arpa format
+       |- test.pdf       #graph of wfst model
+
