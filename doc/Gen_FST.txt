@@ -1,0 +1,28 @@
+#corpus: test.txt
+
+#STEP 1:
+#install SRILM first
+
+#generate ARPA format language model by SRILM
+ngram-count -order 3 -text test.txt -lm test.arpa
+
+#STEP 2:
+#download arpa2fst.py of Transducersaurus from https://code.google.com/p/transducersaurus/source/browse/prototypes/arpa2fst.py?r=8b357f3d218d51bc34d0feffe52251754e8b064e
+
+#generate text fst file by Transducersaurus
+python arpa2fst.py test.arpa test.fsm test  #this will create 4 files: test.fsm, test.g.isyms, test.g.osyms, test.g.ssyms
+
+#STEP 3:
+#install openfst :
+	#./configure --prefix=$OPENFST_HOME  --enable-compact-fsts --enable-const-fsts --enable-far=yes --enable-lookahead-fsts --enable-pdt CXX="clang++ -std=c++11 -stdlib=libstdc++"
+	#make clean
+	#make
+	#make install
+	#add $OPENFST_HOME/bin to PATH if not included
+#install Graphviz if you don't have
+
+#compile fst and draw
+fstcompile --arc_type=log --acceptor=true   --isymbols=test.g.isyms --osymbols=test.g.osyms --ssymbols=test.g.ssyms test.fsm test.bfsm #--keep_state_numbering
+fstdraw --acceptor=true --isymbols=test.g.isyms --osymbols=test.g.osyms --ssymbols=test.g.ssyms --portrait=true test.bfsm| dot -Tpdf > test.pdf
+
+#now you can open test.pdf to view the fst

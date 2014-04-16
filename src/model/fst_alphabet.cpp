@@ -97,3 +97,4 @@ int fst_alphabet_reset(fst_alphabet_t *ab) {
     ret = 0;
     return ret;
 }
+/* just for test*/
