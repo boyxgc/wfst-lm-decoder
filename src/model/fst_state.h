@@ -18,13 +18,17 @@
 
 typedef struct {
     fst_transition_id tran_start;
-    unsigned short    n_tran;
+    unsigned short    n_trans;
 } fst_state_t;
 
-typdef struct {
+typedef struct {
     fst_state_id state_id;
     real         weight;
 } fst_final_state_t;
 
+fst_state_t       *fst_state_new(int                        tran_start, int n_trans);
+fst_final_state_t *fst_final_state_new(fst_state_id         st, real weight);
+int                fst_state_reset(fst_state_t              *state);
+int                fst_final_state_reset(fst_final_state_t  *final_state);
 #endif   /* ----- #ifndef fst_state_H  ----- */
 

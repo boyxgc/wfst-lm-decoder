@@ -42,10 +42,6 @@ int fst_alphabet_load(fst_alphabet_t *ab, const char * symfn) {
     ab->n_labels = count+1;
     ab->labels   = new char *[count+1];
 
-    #ifdef DEBUG
-    //cout << ab->n_labels << endl;
-    #endif
- 
     int label_n;
     std::string label;
     fin.clear();

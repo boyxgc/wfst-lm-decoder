@@ -27,7 +27,11 @@ typedef std::string  string;
 #define MAX_LINE     255
 
 #ifndef DEBUG
-#define DEBUG 1
+#define DEBUG 2
+#endif
+
+#ifndef NULL
+#define NULL ((void*)0)
 #endif
 
 #undef spark_debug
