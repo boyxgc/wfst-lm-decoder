@@ -9,7 +9,7 @@ current directory:
 file: 
      gengrm.sh
 
-ngramsymbols --epsilon_symbol="<eps>" --start_symbol="<s>" --end_symbol="<s>" < $2/$1.txt > $2/$1.syms
+ngramsymbols --epsilon_symbol="<eps>" --start_symbol="<s>" --end_symbol="</s>" < $2/$1.txt > $2/$1.syms
 farcompilestrings --symbols=$2/$1.syms --keep_symbols=1 $2/$1.txt | \
 ngramcount -order=2 | \
 ngrammake -method="katz" > $2/$1.mod 
