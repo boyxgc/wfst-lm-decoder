@@ -19,6 +19,7 @@
 \usepackage{times}
 \usepackage{url}
 \usepackage{latexsym}
+\usepackage{graphicx}
 
 %\setlength\titlebox{5cm}
 
@@ -59,6 +60,15 @@ The past work which is most related to our project is computational approach to 
 \subsection{Language Modeling Method}
 The most straightforward way to do the sentence completion task perhaps is to substitute blanks in a sentence with each options in turn and evaluate its likelihood under a language model. We trained two trigram language models with Katz's smoothing using openGRM\cite{ACL:97}, with wikipedia text and Gutenberg text respectively. The language models are in WFST format, which highly reduced information redundancy and language model file size. And instead of using openGRM to calculete the scores of sentences, we implemented our own decoder(score calculator) to calculate score for each candidate sentence and chose the option that produced the maximum score to be the predicted answer. 
 
+Representing language model in WFST\cite{Mohri:08} format is new to us. We'd like to have a few words to present a brief discussion of it. WFST consists of states and transitions with input label, output label and weight on each transition. Figure \ref{fig:lm} gives a simple language model. We can see there is a start state and one end state (coule be multiple end states).
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=0.4\textwidth]{figure/lm.pdf}
+\caption{Language model in WFST format}
+\label{fig:lm}
+\end{figure}
+
 \subsection{Latent Semantic Analysis Method}
 While using Language Model, we are counting for the frequency of n-grams and we lose all the semantic information. Latent Semantic Analysis is widely used to represent words and documents in a low-dimensional matrix. A training dataset with n document and a vocabulary of size m, a m*n word-document matrix W can be constructed via term-frequency, where the value of the ijth entry indicating the number of occurrence of word i appears in document j. Then singular value decomposition (SVD) is applied on the original matrix. SVD produces three matrix, USVT where U is m*d, S is a d*d diagonal matrix and VT is d*n. Essentially, SVD decomposes the original sparse word-document matrix into a d-dimensional subspace representation and retain the property of each row in W, in a sense that the cosine similarity between two rows in the original W is similar to cosine similarity between two rows in US. 
 
@@ -82,7 +92,9 @@ where a is the word filled in blanks and S is the context sentence. And when the
 \subsection{Improvement}
 Given the definition of total word similarity described above, the most intuitive approach to improve the result is neglecting irrelevant words in the rest of the sentence while calculating the total word similarity. Firstly, all prepositions in all candidate options are removed. Secondly, the k-max algorithm is used to retrieve the first k largest cosine similarity and Rapid automatic keyword extraction (Stuart Rose et al) is applied to extract keywords from a given sentence. Finally, a combination of k-max and keyword extraction is used, in a sense that the total word similarity is calculated as sum of the first k largest cosine similarity between the word in the blank and all keywords in the sentence. 
 \subsection{Ensemble}
-Statistical ensembling technique is widely used in natural language processing applications. It combines the result produced by different types of classifier and algorithms and obtain a more accurate result. We use statistical ensemble to combine the result produced by language modeling and word vector. We first normalize the score produced by language modeling and word vector. Afterwards, we apply the following formula to calculate a single score for each option. 
+In statistics and machine learning, ensemble learning is very popular. ensemble methods use multiple learning algorithms to obtain better predictive performance than could be obtained from any of the constituent learning algorithms. It makes use of several weak learners to generate a stronger one. This gives us inspiration of doing ensemble with different sentence completion approaches. The traditional language modeling method is good at capturing natural language regularities but not relations between words and neither semantic information. And word space modeling methods like word vector is good at capturing relations between words. Since these methods have their own strengthes, we wonder if there is a way to make more use of their strengthes. This is how we think of using ensemble.
+
+In our method,  We use statistical ensemble to combine the result produced by language model and word vector. For each sentence, We first normalize the score produced by language modeling and word vector. Afterwards, we apply the following formula to calculate a single score for each option. 
 
  For language model result:
 \begin{center}
@@ -96,6 +108,7 @@ When ensembling:
 \begin{center}
 $s_{final}$ = $\alpha$ * $ s_{w2v}$\ + (1 - $\alpha$) * $s_{lm}$
 \end{center}
+And then we do iteration to find the $\alpha$ value that produces the best performance.
 \section{Experiment Result And Analysis}
 \subsection{Data}
 We downloaded 10 GB the latest articles dump in xml format from wikipedia. The Gutenberg provides over 72300 documents to crawl in the English text file format. Because of the performance limitation of our laptops, we only uses 2GB wikipedia data with 18 million sentences  and 935MB Gutenberg data with 8.6 million sentences.\\
@@ -186,6 +199,12 @@ Roark, B., Sproat, R., Allauzen, C., Riley, M., Sorensen, J., \& Tai, T.
 \newblock 2012
 \newblock {\em The OpenGrm open-source finite-state grammar software libraries},
 \newblock  In Proceedings of the ACL 2012 System Demonstrations (pp. 61-66).
+
+\bibitem[\protect\citename{Mohri, Mehryar}2008]{Mohri:08}
+Mohri, Mehryar, Fernando Pereira, and Michael Riley. 
+\newblock 2008
+\newblock {\em Speech recognition with weighted finite-state transducers.},
+\newblock Springer Handbook of Speech Processing. Springer Berlin Heidelberg, 2008. 559-584. APA
 
 \end{thebibliography}
 \end{document}
