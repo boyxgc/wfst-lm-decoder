@@ -16,6 +16,9 @@
 #include <stdio.h>
 #include <cstring>
 #include <string>
+#include <vector>
+#include <unordered_map>
+#include <assert.h>
 
 typedef unsigned int fst_state_id;
 typedef unsigned int fst_label_id;

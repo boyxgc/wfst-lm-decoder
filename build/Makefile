@@ -4,7 +4,7 @@ LFLAGS = ${DEBUG} -Wall
 INCLUDES =  -I . -I ../ -I ../src
 CXX = g++
 
-SRC_DIR = ../src/model ../src/utils
+SRC_DIR = ../src/model ../src/utils ../src/decoder
 CPP_SOURCES = $(shell find $(SRC_DIR) -name "*.cpp")
 CPP_OBJECTS = $(patsubst %.cpp,%.o,${CPP_SOURCES})
 EXECUTABLES = $(addprefix ../bin/, wfst-lm-decoder)

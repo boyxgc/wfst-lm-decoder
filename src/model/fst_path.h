@@ -14,7 +14,10 @@
 #ifndef  fst_path_H
 #define  fst_path_H
 
-#include "utils/common.h"
+#include "utils/fst_common.h"
+#include "model/fst_alphabet.h"
+#include <vector>
+#include <string>
 
 typedef struct fst_path {
     struct fst_path *prev;
@@ -23,5 +26,10 @@ typedef struct fst_path {
     fst_label_id     label;
     unsigned int     ref_count;
 } fst_path_t;
+
+fst_path_t *fst_path_new();
+int         fst_path_reset(fst_path_t   *path);
+int         fst_path_delete(fst_path_t  *path);
+
 
 #endif   /* ----- #ifndef fst_path_H  ----- */
