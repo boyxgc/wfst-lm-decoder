@@ -1,0 +1,191 @@
+%
+% File acl2014.tex
+%
+% Contact: koller@ling.uni-potsdam.de, yusuke@nii.ac.jp
+%%
+%% Based on the style files for ACL-2013, which were, in turn,
+%% Based on the style files for ACL-2012, which were, in turn,
+%% based on the style files for ACL-2011, which were, in turn, 
+%% based on the style files for ACL-2010, which were, in turn, 
+%% based on the style files for ACL-IJCNLP-2009, which were, in turn,
+%% based on the style files for EACL-2009 and IJCNLP-2008...
+
+%% Based on the style files for EACL 2006 by 
+%%e.agirre@ehu.es or Sergi.Balari@uab.es
+%% and that of ACL 08 by Joakim Nivre and Noah Smith
+
+\documentclass[11pt]{article}
+\usepackage{acl2014}
+\usepackage{times}
+\usepackage{url}
+\usepackage{latexsym}
+
+%\setlength\titlebox{5cm}
+
+% You can expand the titlebox if you need extra space
+% to show all the authors. Please do not make the titlebox
+% smaller than 5cm (the original size); we will check this
+% in the camera-ready version and ask you to change it back.
+
+
+\title{GRE Sentence Completion}
+
+\author{Haoyu Huang \\
+  {\tt haoyuhua@usc.edu} \\\And
+  Jun Chen \\
+  {\tt chen241@usc.edu}  \\\And
+  Guocheng Xie \\
+  {\tt guochenx@usc.edu} \\}
+
+
+\date{}
+
+\begin{document}
+\maketitle
+\begin{abstract}
+In this project, we study the problem of sentence-level semantic coherence by answering GRE sentence completion questions. We mainly worked on 3 approaches: traditional language modeling method, language modeling with latent semantic analysis (LSA) and word vector modeling. And then we exploit the ensemble method to combine these three methods. Besides, we proposed several novel techniques to improve the performance. The best result we can achieve is 38.4$\%$.
+ %We study GRE style sentence completion problems in this report. We try to solve this kind of problems using two method. One is the language model method that uses the local lexical information. The other method takes the advantage of the whole context, such as latent semantic analysis and word vectors. We also improve the result by extracting the most important words. We compare the results on GRE sentences and MSR sentence challenge data set and find that GRE problems are much harder than the MSR sentence challenge problems. We also analyze our result and give some suggestion for future work.
+  \end{abstract}
+\section{Introduction}
+In recent years, research on sentence-level semantic coherence has been gaining its popularity. Sentence completion, a very common type of question very often showing in language exams, is also a very interesting and valuable research topic due to potential application in standard examinations.
+
+A sentence completion problem is a task that requires people to choose the best option out of a list of options to fill in an incomplete sentence. Each option contains candidate word or phrase for each of the blank in a sentence. This kind of question requires examinee to employ correct understanding of English grammar, semantic of the sentence and use correct logic inference. Generally, human being cannot achieve high accuracy on this problem, let alone machines. By studying this problem, we hope it could be used in places like ETS to perform automatic evaluation on exams. Several researches have been conducted but the state-of-art result is still unpromising.
+
+\section{Related work}
+The past work which is most related to our project is computational approach to sentence completion done by \cite{Aho:72}. This paper proposed a LSA language modeling approach to tackle the sentence completion problems on SAT tasks. They also analyzed several other approaches, including back-off language modeling, neural network language modeling and so on, and made comparison between these approaches. They achieved 53$\%$ accuracy on SAT test set achieved 52$\%$ accuracy on Holmes test set. In (Tomas Mikolov et al.,2013), word2vec was also used to solve MSR Sentence Completion Challenge set and it achieved the state-of-art accuracy of 58.9$\%$. Gensim \cite{Gusfield:97} is an open-source implementation of word vector. Rapid automatic keyword extraction (RAKE) provides an extremely efficient way to extract keywords from documents regardless of document domains. 
+
+%Unlike SAT sentence completion, there is no public work on GRE sentence completion task. One reason is GRE is much harder than SAT because of the two blanks problems and more difficult words. Another reason is that people haven't done well with NLP techniques on SAT task yet. Geoffrey Zweig and Christopher J.C. Burges(2011) has done a good job on Holmes test data set, also known as MSR Sentence Completion Challenge set. These problems are similar to SAT problem. They used both language model and latent semantic analysis related techniques to solve this kind of problem. The result is below 50$\%$. With the combination of different approaches(Geoffrey Zweig et al., 2012), a better accuracy which exceeds 50$\%$ was achieved. Word2vec(Tomas Mikolov et al.,2013) has also been used to solve MSR Sentence Completion Challenge set. Our method is mainly based on word2vec algorithm with some improvement on GRE style problems as word vectors perform better than the language model and LSA approaches.
+\section{Technical Approaches}
+\subsection{Language Modeling Method}
+The most straightforward way to do the sentence completion task perhaps is to substitute blanks in a sentence with each options in turn and evaluate its likelihood under a language model. We trained two trigram language models with Katz's smoothing using openGRM\cite{ACL:97}, with wikipedia text and Gutenberg text respectively. The language models are in WFST format, which highly reduced information redundancy and language model file size. And instead of using openGRM to calculete the scores of sentences, we implemented our own decoder(score calculator) to calculate score for each candidate sentence and chose the option that produced the maximum score to be the predicted answer. 
+
+\subsection{Latent Semantic Analysis Method}
+While using Language Model, we are counting for the frequency of n-grams and we lose all the semantic information. Latent Semantic Analysis is widely used to represent words and documents in a low-dimensional matrix. A training dataset with n document and a vocabulary of size m, a m*n word-document matrix W can be constructed via term-frequency, where the value of the ijth entry indicating the number of occurrence of word i appears in document j. Then singular value decomposition (SVD) is applied on the original matrix. SVD produces three matrix, USVT where U is m*d, S is a d*d diagonal matrix and VT is d*n. Essentially, SVD decomposes the original sparse word-document matrix into a d-dimensional subspace representation and retain the property of each row in W, in a sense that the cosine similarity between two rows in the original W is similar to cosine similarity between two rows in US. 
+
+While doing GRE sentence completion task, we are essentially concerned with the probability of a word can fit in a sentence. In addition, if a completion task requires to fill two blanks, there is a strong correlation between the two words. Thus, each sentence is perceived as a document while building the matrix and the total word similarity is calculated as the sum of cosine similarity between the word in the blank with the rest of the sentence. When the completion task requires two blanks, the total word similarity is calculated by the sum of cosine similarity between each word with the rest of the sentence - including the other word in the blank.
+
+%While using Language Model, we are counting for the frequency of n-gram and we lose all the semantic information. Latent Semantic Analysis is widely used to represent words and documents in a low-dimensional matrix. A training dataset with n document and a vocabulary of size m, a m*n word-document matrix W can be constructed via term-frequency, where the value of the ijth entry indicating the number of occurrence of word i appears in document j. Then singular value decomposition (SVD) is applied on the original matrix. SVD produces three matrix, USVT where U is m*d, S is a d*d diagonal matrix and VT is d*n. Essentially, SVD decomposes the original sparse word-document matrix into a d-dimensional subspace representation and retain the property of each row in W, in the sense that the cosine similarity between two rows in the original W is similar to cosine similarity between two rows in US. \\
+%While doing GRE sentence completion task, we are essentially concerned with the probability of a word can fit in a sentence. In addition, if a completion task requires to fill two blanks, there is a strong correlation between the two words in the blank. Thus, each sentence is perceived as a document while building the matrix and the total word similarity is calculated by the sum of cosine similarity between the word in the blank with the rest of the sentence. When the completion task requires two blanks, the total word similarity is calculated by the sum of cosine similarity between each word with the rest of the sentence - including the other word in the blank, and divided by number of blanks need to fill. 
+
+\subsection{Word Vector Method}
+The word vector method  takes a text corpus as input and produces the word vectors as output. It first constructs a vocabulary from the training text data and then learns vector representation of words. The resulting word vector file can be used as features in many natural language processing and machine learning applications.  
+
+The similarity between two words is the cosine similarity between them. The cosine similarity between vector x and y is calculated by:
+\begin{center}
+sim(x, y) = $\frac{x\cdot y}{\left \| x \right \|\left \| y \right \|}$
+\end{center}
+After obtaining the word vector model, we calculate the total similarity between each option and the sentence. If it is a two blanks problem, we also add the similarity between the two blanks.
+\begin{center}
+totsim(a, S) = $\sum_{w\in S} $sim$(a,\ w)$\\
+\end{center}
+where a is the word filled in blanks and S is the context sentence. And when there are two blanks, the total similarity is the sum of the contributions of all the words. We pick up the option that has the highest total similarity.
+\subsection{Improvement}
+Given the definition of total word similarity described above, the most intuitive approach to improve the result is neglecting irrelevant words in the rest of the sentence while calculating the total word similarity. Firstly, all prepositions in all candidate options are removed. Secondly, the k-max algorithm is used to retrieve the first k largest cosine similarity and Rapid automatic keyword extraction (Stuart Rose et al) is applied to extract keywords from a given sentence. Finally, a combination of k-max and keyword extraction is used, in a sense that the total word similarity is calculated as sum of the first k largest cosine similarity between the word in the blank and all keywords in the sentence. 
+\subsection{Ensemble}
+Statistical ensembling technique is widely used in natural language processing applications. It combines the result produced by different types of classifier and algorithms and obtain a more accurate result. We use statistical ensemble to combine the result produced by language modeling and word vector. We first normalize the score produced by language modeling and word vector. Afterwards, we apply the following formula to calculate a single score for each option. 
+
+ For language model result:
+\begin{center}
+$s_{lm_i}'$ = $\frac{s_{lm_i}}{\sum_{i=1}^{5}{abs(s_{lm_i})}}$
+\end{center}
+For word vector result:
+\begin{center}
+$s_{w2v_i}'$ = $\frac{s_{w2v_i}}{\sum_{i=1}^{5}{s_{w2v_i}+1}}$ 
+\end{center}
+When ensembling:
+\begin{center}
+$s_{final}$ = $\alpha$ * $ s_{w2v}$\ + (1 - $\alpha$) * $s_{lm}$
+\end{center}
+\section{Experiment Result And Analysis}
+\subsection{Data}
+We downloaded 10 GB the latest articles dump in xml format from wikipedia. The Gutenberg provides over 72300 documents to crawl in the English text file format. Because of the performance limitation of our laptops, we only uses 2GB wikipedia data with 18 million sentences  and 935MB Gutenberg data with 8.6 million sentences.\\
+For Wikipedia dataset, we use the bliki engine to extract sentences from Wikipedia dumps. In regards to Gutenberg, we implemented a robot crawler to crawl the Gutenberg website and downloaded 72300 zip files in English text file format, around 12.4GB. After unzipping all zip files, we get approximately 30GB raw text files. We use Stanford CoreNLP document preprocessor to extract valid sentences from paragraphs. \\
+Since punctuations will not help building models in the vector space, we remove all punctuations and convert all words into their lower case. \\
+We use free python library gensim(Radim {\v R}eh{\r u}{\v r}ek and Petr Sojka, 2010), to train the data. We use the log-linear skip-gram neural network model to train the word vector model. The vocabulary size for wikipedia data set is 307k and the vocabulary size for Gutenberg data set is 297k.\\
+%Table 1 shows the size of training data, the vocabulary size and the number of sentences with Wikipedia and Gutenberg, correspondingly.\\
+We collected 383 GRE sentence completion tasks from previous GRE exams, with 241 tasks requiring to fill two blanks and 142 tasks require to fill one blank. All 383 tasks require selecting one option out of five options.We also downloaded the MSR sentence challenge problem set, which contains 1040 problem, which all require to fill one blank from 5 options.\\
+Generally, the word and phrases used in GRE test are rarely seen in daily life. Pearson online dictionary provides API to get word's definition corresponding with their part-of-speech tags in five dictionaries such as, e.g. Longman Dictionary. We tackle this problem by firstly using Stanford CoreNLP tagger to tag the sentence and get the part-of-speech tag of the word in the blank. Then we search the word in the blank in the Pearson dictionary, filter out definitions by the corresponding part-of-speech tag and replace the word with their definitions. 
+\subsection{Language Model and Latent Semantic Result}
+We use openGRM to train our language model with wikipedia and Gutenberg. The  best accuracy we achieved on GRE dataset is 29.8$\%$ and 42$\%$ on SAT dataset. \\
+We trained the LSA model via gensim with wikipedia and Gutenberg. The dimension of word-document matrix is decomposed to 400. The accuracy is 24$\%$ and 22$\%$ for wikipedia and Gutenberg, respectively. The result is not promising so we abandon LSA approach and apply our improvements on word vector approach. 
+
+\subsection{Word Vector Result}
+For wikipedia data set, we use min$\_$count = 12 and size = 640.For Gutenberg data set.We use min$\_$count = 5 and size = 640.If a word appears less than min$\_$count times in the corpora, it will not be counted. So the wikipedia dataset has a similar vocabulary size as the Gutenberg dataset.\\
+As we can see from table, the word vector method outperforms the other two methods.The combination of total similarity, K-max and keyword extraction achieves the best result. We also use this technique on the Holmes dataset. In table 2, it is better than most of the approach mentioned in (Geoffrey Zweig et al., 2012).
+\begin{table}[h]
+\begin{center}
+\begin{tabular}[bottom]{|l | l | l |}
+\hline
+\bf Method & \bf Wikipedia & \bf Gutenberg \\ \hline
+By Chance & 20$\%$ & 20 $\%$ \\\hline
+Total Similarity & 27.7$\%$ & 24.5$\%$ \\\hline
+K-max & 30.8$\%$(k=6) & 26.1$\%$(k=2) \\\hline
+Keyword Extract& 31.9$\%$ & 26.6$\%$\\\hline
+Combination & 33.7$\%$(k=16) & 30.5$\%$(k=2)\\\hline
+Ensemble & 38.4$\%$($\alpha$=0.6)  & --\\\hline
+\end{tabular}
+\end{center}
+\caption{\label{font-table} GRE sentence result }
+\end{table}
+\begin{table}[h]
+\begin{center}
+\begin{tabular}[bottom]{|l | l | l |}
+\hline
+\bf Method & \bf Wikipedia & \bf Gutenberg \\ \hline
+By Chance & 20$\%$ & 20 $\%$ \\\hline
+Total Similarity & 34.3$\%$ & 38.9$\%$ \\\hline
+K-max & 35.3$\%$(k=3) & 40.9$\%$(k=2) \\\hline
+Keyword Extract& 39.9$\%$ & 48.7$\%$\\\hline
+Combination & 40.0$\%$(k=3) & 49.9$\%$(k=6)\\\hline
+Ensemble & -- & 54.6$\%$($\alpha$=0.32)  \\\hline
+\end{tabular}
+\end{center}
+\caption{\label{font-table} Holmes test result }
+\end{table}
+\subsection{Analysis}
+As we can see from the tables, the accuracy on GRE completion tasks is much lower than Holmes dataset since GRE completion tasks are much more sophisticated and require more logic inferences. Another reason is that the Holmes test problem is extracted from Gutenberg, while neither wikipedia nor Gutenberg is a suitable domain for GRE completion tasks.\\
+The combination of k-max and keyword extraction greatly improves the accuracy on both GRE completion task and Holmes completion task. It proves our hypothesis that only counting for key features in a sentence to calculate the total word similarity will improve the result.
+\\ The ensemble of language model and word vector increases the accuracy to 38.4$\%$ on GRE completion task and on Holmes completion task. Since we only obtained 383 GRE completion task, the accuracy is not convincible. We use statistical bootstrapping to randomly select 100,000 samples from the GRE dataset and the accuracy remains approximately 38.438$\%$.\\
+We also tried some other approaches to improve the accuracy and none of them worked properly at this stage. The first thing we tried is to replace the word in the blank with its definition and the accuracy dropped to 18$\%$ on GRE completion tasks. We sum up all word vectors of all tokens in the definition and normalize it by the number of tokens in the definition. Then, the total word similarity is calculated as described in section 4.2. The reason is that the definition of a word essentially is human-readable but gains no assistance for the machine to understand some rare word. The combination of word vectors in the definition reduces the effectiveness of the original word cosine similarity.\\
+In addition to improve the accuracy in general, we have also tried several other approaches such as adding logic inference rules. We observed that there are lots of adversative conjunctions in the GRE sentence such as, e.g., but, though. The two parts of the sentence connected by the adversative conjunctions have opposite meanings. We take advantage of this feature by treating the words appear before the conjunction as positive and the words appear after the conjunction as negative. And the total similarity is calculated by the sum of positive words subtracts the sum of negative words. However, this approach doesn't improve the accuracy. Besides, the blanks in some GRE completion tasks is only relevant to the main body of the sentence or only depends on some particular word in a sentence. For example, "The disjunction between educational objectives that stress independence and individuality and those that emphasize obedience to rules and cooperation with others reflects a conflict that arises from the values on which these objectives are based.", the subject is "disjunction", the verb is "is" and it is obvious that we should fill in the blank with conflict. Thus, we use Stanford dependency parser to simplify the sentence in a way that using depth-first-search from the word with the tag of subject to all its connected components and reorder the connected components by their index to form a sentence. This approach also failed since it is very difficult to define a threshold in which we can neglect the total word similarity and use the dependency parser information to predict the word in the blank. 
+\begin{thebibliography}{}
+
+\bibitem[\protect\citename{Geoffrey Zweig and Christopher J.C. Burges}2011]{Aho:72}
+Geoffrey Zweig and Christopher J.C. Burges
+\newblock 2011.
+\newblock {\em The Microsoft Research sentence completion challenge.}
+\newblock{ Technical Report MSR-TR-2011-129, Microsoft.}
+
+\bibitem[\protect\citename{{American Psychological Association}}1983]{APA:83}
+Zweig, G., Platt, J. C., Meek, C., Burges, C. J., Yessenalina, A., and Liu, Q. 
+\newblock 2012 July.
+\newblock {\em Computational approaches to sentence completion.}
+\newblock Proceedings of the 50th Annual Meeting of the Association for Computational Linguistics: Long Papers-Volume 1 (pp. 601-610). Association for Computational Linguistics.
+
+\bibitem[\protect\citename{{Association for Computing Machinery}}1983]{ACM:83}
+Mikolov, T., Chen, K., Corrado, G., and Dean, J.
+\newblock 2013
+\newblock {\em Efficient estimation of word representations in vector space.}
+\newblock arXiv preprint arXiv:1301.3781.
+
+\bibitem[\protect\citename{Chandra \bgroup et al.\egroup }1981]{Chandra:81}
+Rose, Stuart, Dave Engel, Nick Cramer, and Wendy Cowley.
+\newblock 2010
+\newblock Alternation.
+\newblock {\em Automatic keyword extraction from individual documents.},
+\newblock Text Mining (2010): 1-20.
+
+\bibitem[\protect\citename{Gusfield}1997]{Gusfield:97}
+Radim {\v R}eh{\r u}{\v r}ek and Petr Sojka
+\newblock 2010
+\newblock {\em Proceedings of the LREC 2010 Workshop on New Challenges for NLP Frameworks}. 45--50
+\newblock Valletta, Malta
+
+\bibitem[\protect\citename{Roark}2012]{ACL:97}
+Roark, B., Sproat, R., Allauzen, C., Riley, M., Sorensen, J., \& Tai, T.
+\newblock 2012
+\newblock {\em The OpenGrm open-source finite-state grammar software libraries},
+\newblock  In Proceedings of the ACL 2012 System Demonstrations (pp. 61-66).
+
+\end{thebibliography}
+\end{document}
