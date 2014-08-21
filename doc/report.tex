@@ -64,7 +64,7 @@ Representing language model in WFST\cite{Mohri:08} format is new to us. We'd lik
 
 \begin{figure}[t]
 \centering
-\includegraphics[width=0.4\textwidth]{figure/lm.pdf}
+\includegraphics[width=0.4\textwidth]{lm.pdf}
 \caption{Language model in WFST format}
 \label{fig:lm}
 \end{figure}
@@ -119,7 +119,35 @@ We use free python library gensim(Radim {\v R}eh{\r u}{\v r}ek and Petr Sojka, 2
 We collected 383 GRE sentence completion tasks from previous GRE exams, with 241 tasks requiring to fill two blanks and 142 tasks require to fill one blank. All 383 tasks require selecting one option out of five options.We also downloaded the MSR sentence challenge problem set, which contains 1040 problem, which all require to fill one blank from 5 options.\\
 Generally, the word and phrases used in GRE test are rarely seen in daily life. Pearson online dictionary provides API to get word's definition corresponding with their part-of-speech tags in five dictionaries such as, e.g. Longman Dictionary. We tackle this problem by firstly using Stanford CoreNLP tagger to tag the sentence and get the part-of-speech tag of the word in the blank. Then we search the word in the blank in the Pearson dictionary, filter out definitions by the corresponding part-of-speech tag and replace the word with their definitions. 
 \subsection{Language Model and Latent Semantic Result}
-We use openGRM to train our language model with wikipedia and Gutenberg. The  best accuracy we achieved on GRE dataset is 29.8$\%$ and 42$\%$ on SAT dataset. \\
+We use openGRM to train our language model with wikipedia and Gutenberg. The language model trained by wikipedia is 1.1 G and the one trained by Gutenberg text is 1.3G. The  best accuracy we achieved on GRE dataset is 29.4$\%$ and 42$\%$ on SAT dataset. Table \ref{tab:gre}  and \ref{tab:MSR}show the detailed results:\\
+\begin{table}[h]
+\centering
+\begin{tabular}{|c|c|c|}
+\hline
+Method & Wikipedia & Gutenberg \\
+\hline
+Language model &29.50\% & 28.72\% \\
+\hline
+LSA & &  \\
+\hline
+\end{tabular}
+\caption{GRE Results of Language Modeling and LSA}
+\label{tab:gre}
+\end{table}
+\begin{table}[h]
+\begin{tabular}{|c|c|c|}
+\hline
+Method & Wikipedia & Gutenberg \\
+\hline
+Language model & 26.92\% & 42.02\% \\
+\hline
+LSA & &  \\
+\hline
+\end{tabular}
+\caption{MSR Results of Language Modeling and LSA}
+\label{tab:MSR}
+\end{table}
+
 We trained the LSA model via gensim with wikipedia and Gutenberg. The dimension of word-document matrix is decomposed to 400. The accuracy is 24$\%$ and 22$\%$ for wikipedia and Gutenberg, respectively. The result is not promising so we abandon LSA approach and apply our improvements on word vector approach. 
 
 \subsection{Word Vector Result}
@@ -161,6 +189,11 @@ The combination of k-max and keyword extraction greatly improves the accuracy on
 \\ The ensemble of language model and word vector increases the accuracy to 38.4$\%$ on GRE completion task and on Holmes completion task. Since we only obtained 383 GRE completion task, the accuracy is not convincible. We use statistical bootstrapping to randomly select 100,000 samples from the GRE dataset and the accuracy remains approximately 38.438$\%$.\\
 We also tried some other approaches to improve the accuracy and none of them worked properly at this stage. The first thing we tried is to replace the word in the blank with its definition and the accuracy dropped to 18$\%$ on GRE completion tasks. We sum up all word vectors of all tokens in the definition and normalize it by the number of tokens in the definition. Then, the total word similarity is calculated as described in section 4.2. The reason is that the definition of a word essentially is human-readable but gains no assistance for the machine to understand some rare word. The combination of word vectors in the definition reduces the effectiveness of the original word cosine similarity.\\
 In addition to improve the accuracy in general, we have also tried several other approaches such as adding logic inference rules. We observed that there are lots of adversative conjunctions in the GRE sentence such as, e.g., but, though. The two parts of the sentence connected by the adversative conjunctions have opposite meanings. We take advantage of this feature by treating the words appear before the conjunction as positive and the words appear after the conjunction as negative. And the total similarity is calculated by the sum of positive words subtracts the sum of negative words. However, this approach doesn't improve the accuracy. Besides, the blanks in some GRE completion tasks is only relevant to the main body of the sentence or only depends on some particular word in a sentence. For example, "The disjunction between educational objectives that stress independence and individuality and those that emphasize obedience to rules and cooperation with others reflects a conflict that arises from the values on which these objectives are based.", the subject is "disjunction", the verb is "is" and it is obvious that we should fill in the blank with conflict. Thus, we use Stanford dependency parser to simplify the sentence in a way that using depth-first-search from the word with the tag of subject to all its connected components and reorder the connected components by their index to form a sentence. This approach also failed since it is very difficult to define a threshold in which we can neglect the total word similarity and use the dependency parser information to predict the word in the blank. 
+
+\section{Conclusion and Feature Work}
+In conclusion, we tried 3 methods. Language modeling and word vector had decent results, but for some reason, LSA didn't work well. Our trial on ensemble presented some success. By using ensemble, we improved over 5\% on both our GRE tasks  and MSR test set, and finally achieved 38.4\% on our GRE tasks and 54.6\% on MSR test set, which is better than the result 52\% achieved by Microsoft Research in 2012. Although we don't have other GRE test sets and results to compare with, we believe our results are decent.
+
+In the future, we are going to looking into more in LSA approach. Also, we will try to find more ensemble methods. In the data aspect, we are going to collect more GRE test data.
 \begin{thebibliography}{}
 
 \bibitem[\protect\citename{Geoffrey Zweig and Christopher J.C. Burges}2011]{Aho:72}
@@ -169,13 +202,13 @@ Geoffrey Zweig and Christopher J.C. Burges
 \newblock {\em The Microsoft Research sentence completion challenge.}
 \newblock{ Technical Report MSR-TR-2011-129, Microsoft.}
 
-\bibitem[\protect\citename{{American Psychological Association}}1983]{APA:83}
+\bibitem[\protect\citename{{Zweig, G.}}2012]{APA:83}
 Zweig, G., Platt, J. C., Meek, C., Burges, C. J., Yessenalina, A., and Liu, Q. 
 \newblock 2012 July.
 \newblock {\em Computational approaches to sentence completion.}
 \newblock Proceedings of the 50th Annual Meeting of the Association for Computational Linguistics: Long Papers-Volume 1 (pp. 601-610). Association for Computational Linguistics.
 
-\bibitem[\protect\citename{{Association for Computing Machinery}}1983]{ACM:83}
+\bibitem[\protect\citename{{Mikolov, T., Chen, K., Corrado, G., and Dean, J.}}2013]{ACM:83}
 Mikolov, T., Chen, K., Corrado, G., and Dean, J.
 \newblock 2013
 \newblock {\em Efficient estimation of word representations in vector space.}
